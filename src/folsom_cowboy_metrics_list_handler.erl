@@ -25,19 +25,12 @@
 
 
 -module(folsom_cowboy_metrics_list_handler).
--behaviour(cowboy_http_handler).
--export([init/3, handle/2, terminate/3]).
+-export([init/2]).
 
-init({_Any, http}, Req, []) ->
-    {ok, Req, undefined}.
-
-handle(Req, State) ->
+init(Req, Opts) ->
     Info = cowboy_req:qs_val(<<"info">>, Req, undefined),
-    {ok, Req2} = get_request(Info),
-    {ok, Req2, State}.
-
-terminate(_Reason, _Req, _State) ->
-    ok.
+    Req2 = get_request(Info),
+    {ok, Req2, Opts}.
 
 get_request({<<"true">>, Req}) ->
     Metrics = [{M, proplists:delete(tags, List)} ||
@@ -45,4 +38,4 @@ get_request({<<"true">>, Req}) ->
 
     cowboy_req:reply(200, [], mochijson2:encode(Metrics), Req);
 get_request({_, Req}) ->
-    cowboy_req:reply(200, [], mochijson2:encode(folsom_metrics:get_metrics()), Req). 
+    cowboy_req:reply(200, [], mochijson2:encode(folsom_metrics:get_metrics()), Req).

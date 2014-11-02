@@ -24,15 +24,9 @@
 %%%------------------------------------------------------------------
 
 -module(folsom_cowboy_port_handler).
--behaviour(cowboy_http_handler).
--export([init/3, handle/2, terminate/3]).
+-export([init/2]).
 
-init({_Any, http}, Req, []) ->
-    {ok, Req, undefined}.
+init(Req, Opts) ->
+    Req2 = cowboy_req:reply(200, [], mochijson2:encode(folsom_vm_metrics:get_port_info()), Req),
+    {ok, Req2, Opts}.
 
-handle(Req, State) ->
-    {ok, Req2} = cowboy_req:reply(200, [], mochijson2:encode(folsom_vm_metrics:get_port_info()), Req),
-    {ok, Req2, State}.
-
-terminate(_Reason, _Req, _State) ->
-    ok.
